@@ -1,0 +1,1597 @@
+<style>
+   /* Estilização para o saldo no canto superior direito */
+   #account-balance {
+   position: absolute;
+   top: 335px; /* Move o campo de saldo 2cm para cima */
+   right: 10px;
+   background-color: #3B3A3A; /* Cor cinza um pouco mais escura */
+   padding: 10px;
+   border-radius: 5px;
+   font-size: 5px;
+   box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+   }
+   #account-balance h3 {
+   margin: 0;
+   color: #ffffff;
+   }
+   #balance-amount {
+   color: #27ae60;
+   font-weight: bold;
+   }
+   /* Estilo para os botões de controle */
+   .bot-button {
+   background-color: transparent;
+   border: none;
+   cursor: pointer;
+   margin-top: 150px; /* Espaçamento para posicionar mais abaixo */
+   font-size: 16px;
+   }
+   .bot-button img {
+   width: 40px;
+   height: 40px;
+   }
+   .hidden {
+   display: none;
+   }
+   /* Estilo para os botões de conectar e cadastro */
+   .connect-button, .signup-button {
+   background-color: #3498db;
+   color: white;
+   padding: 10px 20px;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   margin: 10px;
+   display: inline-block;
+   }
+   .connect-button:hover, .signup-button:hover {
+   background-color: #2980b9;
+   }
+   /* Container for buttons in the same row */
+   #auth-buttons {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   margin-top: 20px;
+   }
+   /* Estilo do popup de configurações */
+   .modal {
+   display: none;
+   position: fixed;
+   z-index: 1;
+   left: 50%;
+   top: 65%;
+   transform: translate(-50%, -50%);
+   width: 100%;
+   height: 100%;
+   background-color: rgba(0, 0, 0, 0.4);
+   justify-content: center;
+   align-items: center;
+}
+   .modal-content {
+   background-color: #f4f4f4;
+   color: #000;
+   padding: 20px;
+   border-radius: 10px;
+   width: 90%;
+   max-width: 400px;
+   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+   margin: auto;
+}
+   .modal-content input {
+   width: 100%;
+   padding: 8px;
+   margin: 10px 0;
+   }
+   .modal-content button {
+   background-color: #2CB1E4;
+   color: white;
+   padding: 10px 20px;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   }
+   .modal-content button:hover {
+   background-color: #219150;
+   }
+   .account-dropdown {
+   display: none;
+   background-color: #3B3A3A;
+   border-radius: 25px;
+   padding: 10px 20px;
+   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+   margin: 10px;
+   width: 200px;
+   justify-content: center;
+   align-items: center;
+   }
+   /* Estilo do botão interno */
+   .dropdown-btn {
+   background-color: transparent;
+   color: #ffffff;
+   border: none;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 25px;
+   cursor: pointer;
+   width: 100%;
+   padding: 5px 15px;
+   margin: 5px 0;
+   }
+   /* Container para a bolinha verde e o texto */
+   .status-text-container {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   margin: 0 10px;
+   }
+   .connection-indicator {
+   width: 10px;
+   height: 10px;
+   background-color: #27ae60;
+   border-radius: 50%;
+   margin-top: 2px;
+   margin-right: 5px;
+   }
+   .arrow-down {
+   font-size: 15px;
+   color: #ffffff;
+   margin-left: 15px;
+   transition: transform 0.2s ease;
+   }
+   .dropdown-content {
+   display: none;
+   position: absolute;
+   left: 50%;
+   transform: translateX(-50%);
+   background-color: white;
+   min-width: 220px;
+   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+   border-radius: 10px;
+   z-index: 1000;
+   margin-top: 5px;
+   border: 1px solid #e0e0e0;
+   overflow: hidden;
+   }
+   .dropdown-item {
+   padding: 15px 20px;
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   cursor: pointer;
+   transition: background-color 0.2s ease;
+   color: #333;
+   font-size: 14px;
+   }
+   .dropdown-item:hover {
+   background-color: #f5f5f5;
+   }
+   #current-balance, #reverse-balance {
+   font-weight: 600;
+   color: #2ecc71;
+   }
+   #logout {
+   color: #e74c3c;
+   justify-content: center;
+   border-top: 1px solid #eee;
+   }
+   /* Animation for dropdown */
+   .show {
+   display: block;
+   animation: fadeIn 0.2s ease;
+   }
+   @keyframes fadeIn {
+   from {
+   opacity: 0;
+   transform: translateY(-10px);
+   }
+   to {
+   opacity: 1;
+   transform: translateY(0);
+   }
+   }
+   /* Responsividade */
+   @media (max-width: 768px) {
+   #auth-buttons {
+   flex-direction: column;
+   }
+   .bot-button img {
+   width: 30px;
+   height: 30px;
+   }
+   .account-dropdown {
+   width: 90%;
+   margin: 10px 0;
+   justify-content: center;
+   }
+   }
+   /* Estilo para o fundo da página */
+   body {
+   background-color: #000;
+   color: #fff;
+   font-family: Arial, sans-serif;
+   }
+   /* Estilo para o nome do robô */
+   .robot-title {
+   font-size: 28px; /* Ajusta o tamanho da fonte */
+   font-weight: bold;
+   text-align: center;
+   margin: 15px 0; /* Reduz espaço vertical */
+   color: #ffffff; /* Cor branca para destacar no fundo escuro */
+   position: relative; /* Permite controle com top/left */
+   top: 40px; /* Move o título para baixo */
+   }
+   .progress-container {
+   display: flex;
+   justify-content: space-around;
+   align-items: center;
+   width: 80%; /* Largura total da barra */
+   margin: 10px auto; /* Espaçamento acima e abaixo */
+   padding: 10px 20px; /* Espaçamento interno */
+   position: relative; /* Modo de posicionamento */
+   top: 70px; /* Ajuste vertical */
+   z-index: 1; /* Controle de camadas */
+   }
+
+   .step-container {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   position: relative;
+   flex: 1;
+   }
+   .highlight {
+   animation: blink 0.5s infinite;
+   }
+   @keyframes blink {
+   0%, 100% {
+   opacity: 1;
+   }
+   50% {
+   opacity: 0.3;
+   }
+   }
+
+   
+   
+   @charset "UTF-8";
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700);
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 300;
+  line-height: 1.42em;
+  color:#A7A1AE;
+  background-color:#1F2739;
+}
+
+h1 {
+  font-size:3em; 
+  font-weight: 300;
+  line-height:1em;
+  text-align: center;
+  color: #4DC3FA;
+}
+
+h2 {
+  font-size:1em; 
+  font-weight: 300;
+  text-align: center;
+  display: block;
+  line-height:1em;
+  padding-bottom: 2em;
+  color: #FB667A;
+}
+
+h2 a {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #FB667A;
+  text-decoration: none;
+}
+
+.blue { color: #185875; }
+.yellow { color: #FFF842; }
+
+.container th h1 {
+    font-weight: bold;
+    font-size: 1em;
+  text-align: left;
+  color: #185875;
+}
+
+.container td {
+    font-weight: normal;
+    font-size: 1em;
+  -webkit-box-shadow: 0 2px 2px -2px #0E1119;
+     -moz-box-shadow: 0 2px 2px -2px #0E1119;
+          box-shadow: 0 2px 2px -2px #0E1119;
+}
+
+.container {
+    text-align: left;
+    overflow: hidden;
+    width: 80%;
+    margin: 0 auto;
+  display: table;
+  padding: 0 0 8em 0;
+}
+
+.container td, .container th {
+    padding-bottom: 2%;
+    padding-top: 2%;
+  padding-left:2%;  
+}
+
+/* Background-color of the odd rows */
+.container tr:nth-child(odd) {
+    background-color: #323C50;
+}
+
+/* Background-color of the even rows */
+.container tr:nth-child(even) {
+    background-color: #2C3446;
+}
+
+.container th {
+    background-color: #1F2739;
+}
+
+.container td:first-child { color: #FB667A; }
+
+.container tr:hover {
+   background-color: #464A52;
+-webkit-box-shadow: 0 6px 6px -6px #0E1119;
+     -moz-box-shadow: 0 6px 6px -6px #0E1119;
+          box-shadow: 0 6px 6px -6px #0E1119;
+}
+
+.container td:hover {
+  background-color: #FFF842;
+  color: #403E10;
+  font-weight: bold;
+  
+  box-shadow: #7F7C21 -1px 1px, #7F7C21 -2px 2px, #7F7C21 -3px 3px, #7F7C21 -4px 4px, #7F7C21 -5px 5px, #7F7C21 -6px 6px;
+  transform: translate3d(6px, -6px, 0);
+  
+  transition-delay: 0s;
+    transition-duration: 0.4s;
+    transition-property: all;
+  transition-timing-function: line;
+}
+
+.push-effect {
+    animation: push 0.3s ease-in-out infinite alternate; /* Pisca continuamente */
+}
+
+@keyframes push {
+    0% {
+        transform: scale(1); /* Tamanho original */
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.05); /* Leve aumento */
+        opacity: 1.3;
+    }
+}
+#Notification {
+    text-align: center; /* Centraliza o texto horizontalmente */
+    display: flex;      /* Permite alinhamento flexível */
+    justify-content: center; /* Centraliza o conteúdo horizontalmente */
+    align-items: center; /* Centraliza o conteúdo verticalmente */
+    font-size: 16px; /* Ajuste o tamanho da fonte conforme necessário */
+    height: px; /* Altura do campo Notification (ajuste conforme necessário) */
+    padding: 10px; /* Espaçamento interno para melhorar a aparência */
+}
+
+</style>
+
+
+<!-- Modal de configurações -->
+<div id="settingsModal" class="modal">
+   <div class="modal-content">
+      <h3>Configurações do Robô</h3>
+      <label for="stake">Valor de Entrada (Stake):</label>
+      <input type="number" id="stake" name="stake" value="0.35">
+      <label for="stopLoss">Stop Loss:</label>
+      <input type="number" id="stopLoss" name="stopLoss" value="3">
+      <label for="takeProfit">Take Profit:</label>
+      <input type="number" id="takeProfit" name="takeProfit" value="5">
+      <label for="lossLimit">Número de Perdas Seguidas:</label>
+      <input type="number" id="lossLimit" name="lossLimit" value="3">
+      <button id="saveSettings">OK</button>
+   </div>
+</div>
+
+<!-- <button id="cehck">check</button> -->
+<!-- list of accounts -->
+<div id="listAccounts" class="modal" style="margin-top:100px;">
+    <table class="container" id="acc_table">
+      <thead>
+        <tr>
+          <th><h1>Selecione uma conta</h1></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>2</td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+<div id="Notification">
+    
+
+<script type="text/javascript">
+   (function() {
+    var isauth = false;
+    function switchAccount() {
+        ws.send(JSON.stringify({ 
+            forget_all: "balance"
+        }));
+    }
+
+    jQuery( document ).ready(function( $ ) {
+        $(window).click(function() {
+          document.getElementById("listAccounts").style.display = "none";
+        });
+    });
+
+    document.getElementById("id_refresh").addEventListener("click", function() {
+        location.reload();
+    });
+    document.getElementById("id_logout").addEventListener("click", function() {
+        logout();
+    });
+    document.getElementById("logout2").addEventListener("click", function() {
+        logout();
+    });
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'https://franzxpert.com/optimus';
+    }
+
+    var all_tokens = [], all_ids = [];
+    var active_loginid = localStorage.getItem("loginid");
+    var url = location.href;
+    let paramString = url.split('?')[1];
+    if (paramString) {
+        let queryString = new URLSearchParams(paramString);
+        let arrT = [];
+        let arrL = [];
+        for(let pair of queryString.entries()) {
+            var key = pair[0];
+            var val = pair[1];
+            if (key.startsWith("acct")) {
+                arrL.push(val);
+            }
+            if (key.startsWith("token")) {
+                arrT.push(val);
+            }
+        }
+
+        all_ids = arrL;
+        all_tokens = arrT;
+        if (active_loginid) {
+
+        }
+        else {active_loginid = all_ids[0];}
+        
+        localStorage.setItem("tokens", all_tokens);
+        localStorage.setItem("all_ids", all_ids);
+        localStorage.setItem("loginid", active_loginid);
+    }
+    else {
+        document.getElementById("id_balla").style.display = "none";
+            document.getElementById("balance-amount").style.display = "none";
+            document.getElementById("logout2").style.display = "none";
+            document.getElementById("id_logout").style.display = "none"; 
+            document.getElementById("id_swich2").style.display = "none"; 
+    }
+
+    document.getElementById("start-bot").style.display = "block";
+    document.getElementById("start-bot2").style.display = "block";
+    document.getElementById("start-bot3").style.display = "block";
+    document.getElementById("stop-bot").style.display = "none"; 
+    document.getElementById("id_prolo").style.display = "none"; 
+    if (all_ids.length > 0) {
+        document.getElementById("id-account").textContent = active_loginid;
+        document.getElementById("id_login").style.display = "none";
+        
+        //populate table
+        const tableData = all_ids.map(value => { //all_ids
+          return (
+            `<tr>
+               <td>${value}</td>
+            </tr>`
+          );
+        }).join('');
+
+        const tableBody = document.querySelector('#acc_table tbody');
+        tableBody.innerHTML = tableData;
+
+        tableBody.addEventListener('click', function (e) {
+              const cell = e.target.closest('td');
+              if (!cell) {return;} // Quit, not clicked on a cell
+              const row = cell.parentElement;
+              if (cell.innerHTML === 'close') {
+                    document.getElementById("listAccounts").style.display = "none";
+              }
+              else {
+                active_loginid = cell.innerHTML;
+                  localStorage.setItem("loginid", active_loginid);
+                  document.getElementById("id-account").textContent = active_loginid;
+                  document.getElementById("listAccounts").style.display = "none";
+                  switchAccount();
+                  reqBalance();
+              }
+        });
+
+    }
+    else {
+        document.getElementById("id-account").textContent = 'not connected';
+        console.log("not found ids")
+    }
+
+    document.getElementById("switch-accounts").addEventListener("click", () => {
+        event.stopPropagation();
+        switchAccs();
+    });
+    document.getElementById("id_swich2").addEventListener("click", () => {
+        event.stopPropagation();
+        switchAccs();
+    });
+
+    function switchAccs() {
+        if (all_ids.length > 0) {
+             document.getElementById("listAccounts").style.display = "block";
+        }
+        else {
+            localStorage.clear();
+             window.location.href = 'https://oauth.deriv.com/oauth2/authorize?app_id=64676';
+        }
+    }
+    
+    document.getElementById("id_login").addEventListener("click", () => {
+        localStorage.clear();
+        window.location.href = 'https://oauth.deriv.com/oauth2/authorize?app_id=64676';
+    });
+
+    let my_stake = 0.35, initial_stake = 0.35, loss_row = 0;
+    var stake, stop_loss, take_profit, martingale = 2.10, loss_limit = 3;
+    let lossVirtualDelay = false; // Indica se o robô está em pausa após uma perda
+const delayDuration = 20000; // 60 segundos em milissegundos
+
+    let ws = new WebSocket("wss://ws.binaryws.com/websockets/v3?app_id=64676");
+    let isRunning = false;
+    const settings = {
+        symbol: "R_25",
+        contract_type: "CALL",
+        amount: Number(my_stake.toFixed(2)),
+        loginid: active_loginid,
+        duration: 5,
+        duration_unit: "t",
+        currency: "USD",
+        stake: Number(my_stake.toFixed(2)),
+        stopLoss: 3,
+        takeProfit: 5,
+        lossLimit: 3
+    };
+
+    function reqBalance() {
+        ws.send(JSON.stringify({ 
+             balance: 1, 
+             subscribe: 1, 
+             loginid: active_loginid 
+         }));
+    }
+
+    function pingM() {
+        console.log('pinging')
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ 
+                ping: 1,
+                req_id: 1212
+            }));
+        }
+    }
+    setInterval(pingM, 10000);
+
+    let blinkInterval; // Variável global para armazenar o intervalo de piscar
+    let progressBar = document.getElementById('progress-bar');
+    let step1 = document.getElementById('step1');
+    let step2 = document.getElementById('step2');
+    let step3 = document.getElementById('step3');
+
+    step1.style.display = "none"; 
+    step2.style.display = "none"; 
+    step3.style.display = "none";
+    progressBar.style.display = "none";
+
+// Inicia o efeito de piscar em um elemento
+function startBlink(element) {
+    clearBlink(); // Garante que não haja outro intervalo em execução
+    blinkInterval = setInterval(() => {
+        element.classList.toggle('highlight');
+    }, 500); // Alterna a classe a cada 500ms
+}
+
+// Para o efeito de piscar
+function clearBlink() {
+    if (blinkInterval) {
+        clearInterval(blinkInterval); // Interrompe o intervalo
+        blinkInterval = null;
+    }
+
+    // Remove a classe "highlight" de todos os passos
+    step1.classList.remove('highlight');
+    step2.classList.remove('highlight');
+    step3.classList.remove('highlight');
+
+    step1.style.display = "none"; 
+    step2.style.display = "none"; 
+    step3.style.display = "none"; 
+}
+
+var lost = 0, won = 0, trades = 0, profitt = 0, isnotrade = true;
+var balance_subscription_id;
+function updateStats() {
+    // Referência ao elemento onde as estatísticas serão exibidas
+    const statsElement = document.getElementById("id_stats");
+
+    // Estilo dos textos com cores personalizadas
+    const statsText = `
+        <span style="color: green;">W: ${won}</span> |
+        <span style="color: red;">L: ${lost}</span> |
+        <span style="color: #2CB1E4;">T: ${trades}</span>
+    `;
+
+    // Atualiza o conteúdo do elemento com estatísticas
+    statsElement.innerHTML = statsText;
+    statsElement.style.fontSize = "13px";
+
+    // Referência ao elemento onde o lucro será exibido
+    const profitElement = document.getElementById("id_prolo");
+
+    // Atualiza o lucro e ajusta a cor com base no valor
+    profitElement.textContent = `Lucro $${profitt.toFixed(2)}`;
+    profitElement.style.color = profitt > 0 ? "green" : "red";
+}
+
+
+
+function updateProgress(step) {
+    // Limpa o progresso e o efeito de piscar anteriores
+    progressBar.style.transition = "width 0.5s ease-in-out";
+    progressBar.style.display = "block";
+    progressBar.style.width = '0%';
+    clearBlink();
+
+    step1.classList.remove('active', 'highlight');
+    step2.classList.remove('active', 'highlight');
+    step3.classList.remove('active', 'highlight');
+
+    if (step === 1) {
+        step1.style.display = "none"; 
+        step2.style.display = "none"; 
+        step3.style.display = "none"; 
+
+        progressBar.style.width = '0%';
+        step1.classList.add('active');
+        step1.style.display = "block"; 
+
+        if (isRunning) {
+            startBlink(step1); // Inicia o piscar se o robô estiver em execução
+            updateNotification("Aguardando um sinal claro..."); // Nova mensagem
+        }
+    } else if (step === 2) {
+        progressBar.style.width = '42%';
+        step2.classList.add('active');
+        step2.classList.add('highlight');
+        step2.style.display = "block"; 
+        if (isRunning) {
+            startBlink(step2); // Inicia o piscar se o robô estiver em execução
+            const action = lastTrade === "buy" ? "Compra realizada" : "Venda realizada";
+            updateNotification(`${action}, aguardando resultado...`); // Nova mensagem
+        }
+    } else if (step === 3) {
+        progressBar.style.width = '80%';
+        step3.classList.add('active');
+        step3.classList.add('highlight');
+        step3.style.display = "block"; 
+        if (isRunning) {
+            startBlink(step3); // Inicia o piscar se o robô estiver em execução
+        }
+    }
+}
+
+
+// Função para iniciar o piscar intermitente
+function startBlink(element) {
+    blinkInterval = setInterval(() => {
+        element.classList.toggle('highlight'); // Alterna a classe highlight
+    }, 500); // Pisca a cada 500ms
+}
+
+// Função para parar o piscar
+function clearBlink() {
+    if (blinkInterval) {
+        clearInterval(blinkInterval);
+        blinkInterval = null;
+    }
+    step1.classList.remove('highlight');
+    step2.classList.remove('highlight');
+    step3.classList.remove('highlight');
+}
+let marketData = []; // Variável global para armazenar dados do mercado
+    function updateBalance() {
+       ws.onopen = function() {
+    console.log("WebSocket conectado.");
+
+    // Reinscrevendo nos dados do mercado
+    ws.send(JSON.stringify({
+        ticks_history: "R_25",
+        adjust_start_time: 1,
+        count: 50,
+        end: "latest",
+        start: 1,
+        style: "candles",
+        granularity: 60,
+        subscribe: 1
+    }));
+
+    // Reautorizando a conta
+    if (all_tokens) {
+        ws.send(JSON.stringify({ 
+            authorize: 'MULTI',
+            tokens: all_tokens,
+            req_id: 10001
+        }));
+    }
+
+    // Reiniciar o robô se ele estava rodando antes da desconexão
+    if (isRunning) {
+        console.log("Reconexão detectada. Retomando operações...");
+        startBot(); // Reinicia a lógica de negociação
+    }
+};
+
+
+
+        
+
+ws.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+
+            var req_id = data.echo_req.req_id;
+
+            if (data.msg_type === "authorize") {
+                reqBalance();
+            }
+
+            if (data.msg_type === "balance") {
+                const balanceElement = document.getElementById("balance-amount");
+                if (data.balance) {
+                    balanceElement.textContent = `$${data.balance?.balance?.toFixed(2)}`;
+                }
+                if (data.subscription) {
+                    balance_subscription_id = data.subscription.id;
+                    console.log('sub id', balance_subscription_id)
+                }
+                console.log('data', data);
+            }
+
+            if (data.msg_type === "ohlc") {
+    if (data.ohlc) {
+        marketData.push(data.ohlc);
+
+        // Limitar o histórico a 50 entradas
+        if (marketData.length > 50) {
+            marketData.shift(); // Remove o item mais antigo
+        }
+
+        console.log(`Dados recebidos. marketData contém ${marketData.length} entradas.`);
+        handleMarketData(marketData); // Processa os dados, mesmo com menos entradas no início
+    } else {
+        console.error("Dados de OHLC ausentes ou inválidos:", data);
+    }
+}
+
+            if (data.msg_type === 'buy' && data.buy) {
+                 trades ++;
+                 updateProgress(2);
+            }
+
+            if (req_id === 9999) {
+                 let proposal_open_contract = data.proposal_open_contract;
+
+                 if (proposal_open_contract) {
+                     let status = proposal_open_contract.status;
+                     let profit = proposal_open_contract.profit;
+                     let contract_type = proposal_open_contract.contract_type;
+                     let buy_price = proposal_open_contract.buy_price;
+                     let entry_tick_time = proposal_open_contract.entry_tick_time * 1000;
+                     const date = new Date(entry_tick_time);
+                     const formattedDate = date.toLocaleDateString(); // e.g., "11/29/2024"
+                     const formattedTime = date.toLocaleTimeString(); // e.g., "6:07:09 PM"
+                     const time = formattedDate + " " + formattedTime;
+                     if (status === 'won') {
+                         won ++;
+                         my_stake = initial_stake;
+                         loss_row = 0;
+                     }
+                    
+                    if (status === 'lost') {
+    lost++; // Incrementa o contador total de perdas
+    loss_row++; // Incrementa o contador de perdas consecutivas
+    my_stake *= martingale; // Aplica Martingale para o próximo stake
+
+    console.log(`Perda registrada. Perdas consecutivas: ${loss_row}`);
+
+    if (loss_row >= 3 && !lossVirtualDelay) { // Verifica se não está em pausa e se atingiu 3 perdas
+        console.log("Entrando em pausa de segurança. Aguardando antes de operar...");
+        lossVirtualDelay = true; // Ativa o estado de pausa
+        const delaySeconds = 120; // Tempo de pausa em segundos
+        let remainingTime = delaySeconds;
+
+        // Atualiza a notificação na página
+        const notificationElement = document.getElementById('Notification');
+        if (notificationElement) {
+            notificationElement.classList.add('push-effect');
+            notificationElement.style.color = 'red';
+
+            const updateMessage = () => {
+                if (remainingTime > 0) {
+                    notificationElement.innerHTML = `Pausa de segurança: aguardando ${remainingTime} segundos...`;
+                    remainingTime--;
+                } else {
+                    notificationElement.innerHTML = "";
+                    notificationElement.classList.remove('push-effect');
+                    clearInterval(intervalId);
+                }
+            };
+
+            const intervalId = setInterval(updateMessage, 1000);
+            updateMessage();
+        }
+
+        // Aguarda o tempo de pausa antes de retomar as operações
+        setTimeout(() => {
+            lossVirtualDelay = false; // Desativa o Loss Virtual
+            loss_row = 0; // Reseta as perdas consecutivas após a pausa
+            console.log("Pausa de segurança concluída. Operações retomadas.");
+            if (isRunning) {
+                buyContract(); // Retoma as operações
+            }
+        }, delaySeconds * 1000);
+    }
+}
+
+if (status === 'won') {
+    won++; // Incrementa o contador de vitórias
+    loss_row = 0; // Reseta o contador de perdas consecutivas após vitória
+    my_stake = initial_stake; // Reseta o valor do stake
+}
+
+
+
+
+                     if (status !== 'open' && profit) {
+                         profitt += profit;
+                         isnotrade = true;
+                         updateStats();
+                         updateProgress(3);
+                         //plot a table
+                         var table = document.getElementById("trades_table");
+                         var newRow = table.insertRow(+1);
+
+                         // Insert new cells in the row
+                         var cell1 = newRow.insertCell(0);
+                         var cell2 = newRow.insertCell(1);
+                         var cell3 = newRow.insertCell(2);
+                         
+                         // Add data to the cells
+                         cell1.innerHTML = time;
+                         cell2.innerHTML = buy_price.toFixed(2);
+                         cell3.innerHTML = profit.toFixed(2);
+
+                         cell1.style.color= "white";
+                         cell2.style.color= "white";
+                         cell3.style.color= "green";
+                         if (profit < 0) {
+                             cell3.style.color= "red";
+                         }
+
+                         setTimeout(updateProgress, 2000, 1);
+
+                         if (isRunning) {
+                            if (stop_loss !== 0 && profitt <= -stop_loss) {
+                                isRunning = false;
+                                isnotrade = true;
+                                setButtons2();
+                                alert("Stop loss has been reached");
+                            }
+                            else if (take_profit !== 0 && profitt >= take_profit) {
+                                isRunning = false;
+                                isnotrade = true;
+                                setButtons2();
+                                alert("Take profit has been reached");
+                            }
+                         }
+                     }
+                 }
+
+                 let error = data.error;
+                 if (error) {
+                     var msg = error.message;
+                     setButtons2();
+                     alert(msg);
+                 }
+            }
+        };
+
+        ws.onerror = function(error) {
+            console.error("Erro no WebSocket:", error);
+        };
+
+       ws.onclose = function() {
+    console.log("WebSocket desconectado. Tentando reconectar...");
+    setTimeout(() => {
+        ws = new WebSocket("wss://ws.binaryws.com/websockets/v3?app_id=64676");
+        updateBalance(); // Atualiza informações da conta
+    }, 3000);
+        };
+    }
+    function calculateCCI(data, period = 20) {
+    if (data.length < period) {
+        console.warn("Dados insuficientes para calcular CCI.");
+        return null;
+    }
+
+    const typicalPrices = data.map(candle => (candle.high + candle.low + candle.close) / 3);
+    const sma = typicalPrices.slice(-period).reduce((acc, val) => acc + val, 0) / period;
+    const meanDeviation = typicalPrices.slice(-period).reduce((acc, val) => acc + Math.abs(val - sma), 0) / period;
+    const cci = (typicalPrices[typicalPrices.length - 1] - sma) / (0.015 * meanDeviation);
+    return cci;
+}
+
+   function calculateATR(data, period = 14) {
+    if (data.length < period + 1) {
+        console.warn("Dados insuficientes para calcular ATR.");
+        return null;
+    }
+
+    const tr = data.map((candle, i) => {
+        if (i === 0) return 0;
+        const highLow = candle.high - candle.low;
+        const highClose = Math.abs(candle.high - data[i - 1].close);
+        const lowClose = Math.abs(candle.low - data[i - 1].close);
+        return Math.max(highLow, highClose, lowClose);
+    });
+
+    const atr = tr.slice(-period).reduce((acc, val) => acc + val, 0) / period;
+    return atr;
+}
+
+function calculateParabolicSAR(data, af = 0.02, maxAf = 0.2) {
+    let sar = data[0].low; // Inicia com o menor valor do primeiro candle
+    let ep = data[0].high; // Ponto extremo
+    let trend = "up"; // Começa em tendência de alta
+
+    return data.map((candle, i) => {
+        if (i === 0) return sar;
+
+        if (trend === "up") {
+            sar += af * (ep - sar);
+            if (candle.low < sar) {
+                trend = "down";
+                sar = ep;
+                af = 0.02;
+            } else if (candle.high > ep) {
+                ep = candle.high;
+                af = Math.min(af + 0.02, maxAf);
+            }
+        } else {
+            sar -= af * (sar - ep);
+            if (candle.high > sar) {
+                trend = "up";
+                sar = ep;
+                af = 0.02;
+            } else if (candle.low < ep) {
+                ep = candle.low;
+                af = Math.min(af + 0.02, maxAf);
+            }
+        }
+
+        return sar;
+    });
+}
+
+// Função para calcular a Média Móvel Simples (SMA)
+function calculateSMA(data, period = 14) {
+    if (data.length < period) {
+        console.warn("Dados insuficientes para calcular SMA");
+        
+        // Atualiza a notificação com a mensagem "Aguardando dados suficientes..."
+        updateNotification("Aguardando dados suficientes...");
+
+        throw new Error("Dados insuficientes para calcular SMA");
+    }
+
+    const slice = data.slice(-period); // Obtém os últimos 'period' valores
+    const sum = slice.reduce((acc, item) => acc + parseFloat(item.close), 0);
+    return sum / period;
+}
+
+// Função para calcular o RSI (Relative Strength Index)
+function calculateRSI(data, period = 14) {
+    // Permitir cálculos preliminares com pelo menos 3 entradas
+    if (data.length < 3) {
+        console.warn("Dados insuficientes para calcular RSI. Operando com menos precisão.");
+        return null;
+    }
+
+    // Usar o menor entre o período padrão e o tamanho dos dados disponíveis
+    const adjustedPeriod = Math.min(period, data.length);
+
+    let gains = 0;
+    let losses = 0;
+
+    for (let i = 1; i < adjustedPeriod; i++) {
+        const change = parseFloat(data[i].close) - parseFloat(data[i - 1].close);
+        if (change > 0) {
+            gains += change;
+        } else {
+            losses -= change; // Converter para valor positivo
+        }
+    }
+
+    const averageGain = gains / adjustedPeriod;
+    const averageLoss = losses / adjustedPeriod;
+
+    if (averageLoss === 0) return 100; // RSI máximo (mercado em alta)
+
+    const rs = averageGain / averageLoss;
+    return 100 - (100 / (1 + rs)); // Retorna o RSI
+}
+
+
+
+// Função para calcular as Bandas de Bollinger
+// Função para calcular as Bandas de Bollinger
+function calculateBollingerBands(data, period = 10, deviation = 2) {
+    // Permitir cálculos preliminares com pelo menos 3 entradas
+    if (data.length < 3) {
+        console.warn("Dados insuficientes para calcular Bandas de Bollinger. Operando com menos precisão.");
+        return null;
+    }
+
+    const adjustedPeriod = Math.min(period, data.length);
+    const sma = calculateSMA(data, adjustedPeriod);
+    const slice = data.slice(-adjustedPeriod);
+
+    const stdDev = Math.sqrt(slice.reduce((acc, item) => {
+        return acc + Math.pow(parseFloat(item.close) - sma, 2);
+    }, 0) / adjustedPeriod);
+
+    return {
+        upper: sma + (deviation * stdDev), // Banda superior
+        lower: sma - (deviation * stdDev)  // Banda inferior
+    };
+}
+
+
+function calculateStochastic(data, period = 14) {
+    const recentData = data.slice(-period);
+    const high = Math.max(...recentData.map(c => c.high));
+    const low = Math.min(...recentData.map(c => c.low));
+    const close = parseFloat(data[data.length - 1].close);
+
+    const k = ((close - low) / (high - low)) * 100;
+    const d = k; // Pode usar uma média para suavizar
+
+    return { k, d };
+}
+
+function calculateMACD(data, shortPeriod = 9, longPeriod = 21, signalPeriod = 6) {
+    // Verifica se `data` é um array válido
+    if (!Array.isArray(data) || data.length === 0) {
+        console.error("Dados inválidos fornecidos para calculateMACD.");
+        return null;
+    }
+
+    const emaShort = calculateEMA(data.slice(-shortPeriod), shortPeriod); // Corta os últimos candles
+    const emaLong = calculateEMA(data.slice(-longPeriod), longPeriod); // Corta os últimos candles
+
+    if (emaShort === null || emaLong === null) {
+        console.error("Erro ao calcular as EMAs para MACD.");
+        return null;
+    }
+
+    const macdLine = emaShort - emaLong;
+
+    // Calcula a linha de sinal (EMA da linha MACD)
+    const macdData = data.map((candle, index) => {
+        if (index < longPeriod) return null; // Ignora índices iniciais sem dados suficientes
+        return calculateEMA(data.slice(index - signalPeriod, index), signalPeriod);
+    }).filter(value => value !== null); // Remove valores nulos
+
+    const signalLine = macdData[macdData.length - 1]; // Pega o último valor da linha de sinal
+    const histogram = macdLine - signalLine;
+
+    return { macdLine, signalLine, histogram };
+}
+
+
+function calculateEMA(data, period) {
+    // Verifica se `data` é um array válido
+    if (!Array.isArray(data) || data.length === 0) {
+        console.error("Dados inválidos fornecidos para calculateEMA.");
+        return null;
+    }
+
+    const k = 2 / (period + 1); // Fator de suavização
+    let ema = parseFloat(data[0].close); // Inicia com o primeiro valor de fechamento
+
+    for (let i = 1; i < data.length; i++) {
+        const close = parseFloat(data[i].close);
+        if (isNaN(close)) {
+            console.error(`Valor inválido encontrado no índice ${i}:`, data[i]);
+            continue;
+        }
+        ema = close * k + ema * (1 - k); // Fórmula da EMA
+    }
+
+    return ema;
+}
+
+
+
+function calculateIchimoku(data) {
+    const high9 = Math.max(...data.slice(-9).map(c => c.high));
+    const low9 = Math.min(...data.slice(-9).map(c => c.low));
+    const tenkanSen = (high9 + low9) / 2;
+
+    const high26 = Math.max(...data.slice(-26).map(c => c.high));
+    const low26 = Math.min(...data.slice(-26).map(c => c.low));
+    const kijunSen = (high26 + low26) / 2;
+
+    const senkouSpanA = (tenkanSen + kijunSen) / 2;
+
+    const high52 = Math.max(...data.slice(-52).map(c => c.high));
+    const low52 = Math.min(...data.slice(-52).map(c => c.low));
+    const senkouSpanB = (high52 + low52) / 2;
+
+    return {
+        tenkanSen,
+        kijunSen,
+        senkouSpanA,
+        senkouSpanB,
+        trend: tenkanSen > kijunSen ? "bullish" : "bearish"
+    };
+}
+
+
+
+function calculateFibonacci(data) {
+    const high = Math.max(...data.map(c => c.high));
+    const low = Math.min(...data.map(c => c.low));
+    const range = high - low;
+
+    return {
+        level23: high - range * 0.236,
+        level38: high - range * 0.382,
+        level50: high - range * 0.5,
+        level61: high - range * 0.618,
+        level78: high - range * 0.786
+    };
+}
+
+function calculateADX(data, period = 14) {
+    if (data.length < period + 1) {
+        console.warn(`Dados insuficientes para calcular ADX. Necessário: ${period + 1}, Disponível: ${data.length}`);
+        return null;
+    }
+
+    let trList = []; // True Range (TR)
+    let plusDMList = []; // +DM
+    let minusDMList = []; // -DM
+
+    // Passo 1: Calcular TR, +DM e -DM
+    for (let i = 1; i < data.length; i++) {
+        const high = parseFloat(data[i].high);
+        const low = parseFloat(data[i].low);
+        const prevClose = parseFloat(data[i - 1].close);
+
+        const tr = Math.max(high - low, Math.abs(high - prevClose), Math.abs(low - prevClose));
+        trList.push(tr);
+
+        const plusDM = high > data[i - 1].high && high - data[i - 1].high > data[i - 1].low - low ? high - data[i - 1].high : 0;
+        const minusDM = data[i - 1].low > low && data[i - 1].low - low > high - data[i - 1].high ? data[i - 1].low - low : 0;
+
+        plusDMList.push(plusDM);
+        minusDMList.push(minusDM);
+    }
+
+    // Passo 2: Calcular TR14, +DM14 e -DM14
+    let tr14 = trList.slice(0, period).reduce((acc, val) => acc + val, 0);
+    let plusDM14 = plusDMList.slice(0, period).reduce((acc, val) => acc + val, 0);
+    let minusDM14 = minusDMList.slice(0, period).reduce((acc, val) => acc + val, 0);
+
+    let dxList = []; // Lista para armazenar os valores de DX
+
+    // Passo 3: Calcular os valores de DX
+    for (let i = period; i < trList.length; i++) {
+        const currentTR14 = tr14 - tr14 / period + trList[i];
+        const currentPlusDM14 = plusDM14 - plusDM14 / period + plusDMList[i];
+        const currentMinusDM14 = minusDM14 - minusDM14 / period + minusDMList[i];
+
+        const plusDI14 = (currentPlusDM14 / currentTR14) * 100;
+        const minusDI14 = (currentMinusDM14 / currentTR14) * 100;
+
+        const dx = Math.abs(plusDI14 - minusDI14) / (plusDI14 + minusDI14) * 100;
+        dxList.push(dx);
+
+        // Atualizar os valores acumulados para o próximo cálculo
+        tr14 = currentTR14;
+        plusDM14 = currentPlusDM14;
+        minusDM14 = currentMinusDM14;
+    }
+
+    // Passo 4: Calcular o ADX (média móvel de DX)
+    const initialADX = dxList.slice(0, period).reduce((acc, val) => acc + val, 0) / period;
+    let adxList = [initialADX];
+
+    for (let i = period; i < dxList.length; i++) {
+        const adx = (adxList[adxList.length - 1] * (period - 1) + dxList[i]) / period;
+        adxList.push(adx);
+    }
+
+    // Retorna o último valor do ADX, que é o mais recente
+    return adxList[adxList.length - 1];
+}
+
+
+// Função para filtrar sinais fracos
+function isSignalStrong(data, currentPrice) {
+    const rsi = calculateRSI(data, 14); // RSI 14 períodos
+    const bollinger = calculateBollingerBands(data, 20, 2); // Bandas de Bollinger
+    const adx = calculateADX(data, 14); // ADX para força da tendência
+    const macd = calculateMACD(data, 12, 26, 9); // MACD
+    const sma50 = calculateSMA(data, 50); // SMA 50 períodos
+
+    let buyConditions = 0;
+    let sellConditions = 0;
+
+    // **Critérios de Compra**
+    if (rsi !== null && rsi < 30) buyConditions += 2; // RSI sobrevendido
+    if (bollinger !== null && currentPrice < bollinger.lower) buyConditions++;
+    if (adx !== null && adx > 25) buyConditions++;
+    if (macd !== null && macd.macdLine > macd.signalLine) buyConditions++;
+    if (sma50 !== null && currentPrice > sma50) buyConditions++;
+
+    // **Critérios de Venda**
+    if (rsi !== null && rsi > 70) sellConditions += 2; // RSI sobrecomprado
+    if (bollinger !== null && currentPrice > bollinger.upper) sellConditions++;
+    if (adx !== null && adx > 25) sellConditions++;
+    if (macd !== null && macd.macdLine < macd.signalLine) sellConditions++;
+    if (sma50 !== null && currentPrice < sma50) sellConditions++;
+
+    // **Definição de Sinais Fortes**
+    const isBuyStrong = buyConditions >= 3; // Pelo menos 3 critérios para compra
+    const isSellStrong = sellConditions >= 3; // Pelo menos 3 critérios para venda
+
+    return { isBuyStrong, isSellStrong };
+}
+
+
+
+
+// Função para executar as negociações
+var contract_type = 'PUT'; 
+let lastTrade = null; // Armazena o último tipo de operação
+
+function executeTrade(action) {
+    console.log(`Executando trade: ${action}`);
+
+    // Verifica se o mesmo trade foi realizado recentemente
+    if (lastTrade === action) {
+        console.log(`Trade ${action} já realizado. Ignorando sinal duplicado.`);
+        return;
+    }
+
+    // Define o tipo de contrato com base na ação
+    lastTrade = action; // Atualiza o último tipo de operação
+    if (action === "buy") {
+        contract_type = 'CALL';
+    } else if (action === "sell") {
+        contract_type = 'PUT';
+    }
+
+    // Executa o trade apenas se o robô estiver em execução
+    if (isRunning) {
+        console.log("Enviando solicitação de compra/venda...");
+        buyContract();
+
+        // Redefine `lastTrade` após a duração do contrato
+        setTimeout(() => {
+            console.log(`Resetando controle de último trade: ${lastTrade}`);
+            lastTrade = null; // Permite novos trades
+        }, settings.duration * 2000); // Aguarda o tempo de duração do contrato
+    }
+}
+
+ // Função para verificar se o mercado tem tendência definida
+
+
+function handleMarketData(data) {
+    if (lossVirtualDelay) {
+        console.log("Pausa de segurança ativa. Análise de mercado pausada.");
+        return; // Sai da função se estiver em pausa
+    }
+
+    const minDataRequired = 50; // Pelo menos 50 candles para cálculos precisos
+    if (data.length < minDataRequired) {
+        updateNotification("Aguardando mais dados...");
+        return;
+    }
+
+    try {
+        const currentPrice = parseFloat(data[data.length - 1]?.close);
+        if (!currentPrice || isNaN(currentPrice)) {
+            console.error("Preço atual inválido.");
+            return;
+        }
+
+        // Obter sinal forte baseado nos melhores indicadores
+        const signal = isSignalStrong(data, currentPrice);
+
+        // Ações baseadas nos sinais detectados
+        if (signal.isBuyStrong) {
+            console.log("Sinal forte de COMPRA detectado.");
+            executeTrade("buy");
+        } else if (signal.isSellStrong) {
+            console.log("Sinal forte de VENDA detectado.");
+            executeTrade("sell");
+        } else {
+            console.log("Nenhum sinal forte detectado.");
+        }
+    } catch (error) {
+        console.error("Erro ao processar dados de mercado:", error.message);
+    }
+}
+
+
+
+
+
+   let isContractActive = false; // Indica se um contrato está ativo
+
+function buyContract() {
+    // Verifica se o robô está em pausa
+    if (lossVirtualDelay) {
+        console.log("Pausa de segurança ativa. Operação bloqueada.");
+        return; // Sai da função se estiver em pausa
+    }
+
+    if (ws.readyState !== WebSocket.OPEN) {
+        console.log("WebSocket desconectado. Aguarde reconexão antes de operar.");
+        return;
+    }
+
+    isContractActive = true; // Marca que um contrato foi aberto
+    const msg = JSON.stringify({
+        buy: 1,
+        price: Number(my_stake.toFixed(2)),
+        loginid: active_loginid,
+        subscribe: 1,
+        req_id: 9999,
+        parameters: {
+            contract_type: contract_type,
+            amount: Number(my_stake.toFixed(2)),  
+            basis: 'stake',
+            currency: settings.currency,
+            duration: settings.duration,
+            duration_unit: settings.duration_unit,
+            symbol: settings.symbol,
+        }
+    });
+
+    if (isnotrade) {
+        isnotrade = false;
+        ws.send(msg);
+
+        // Libera após um tempo equivalente à duração do contrato
+        setTimeout(() => {
+            isContractActive = false;
+        }, settings.duration * 2000);
+    }
+}
+
+function sellContract(contractId) {
+    if (ws.readyState !== WebSocket.OPEN) {
+        console.log("WebSocket desconectado. Aguarde reconexão antes de operar.");
+        return;
+    }
+
+    // Enviar a solicitação de venda
+    const msg = JSON.stringify({
+        sell: contractId, // ID do contrato que você deseja vender
+        price: 0          // Defina 0 para vender ao melhor preço disponível
+    });
+
+    ws.send(msg);
+    console.log(`Solicitação de venda enviada para contrato: ${contractId}`);
+}
+
+
+
+ function startBot() {
+    if (!isRunning) {
+        console.log("Bot iniciando...");
+        isRunning = true;
+
+        let attempts = 0;
+        const maxAttempts = 30; // Limite de 30 segundos para receber dados
+
+        const waitForMarketData = setInterval(() => {
+            attempts++;
+            if (marketData.length >= 14) { // Verifica se há dados suficientes
+                clearInterval(waitForMarketData);
+                console.log("Iniciando análise com os dados disponíveis...");
+                handleMarketData(marketData);
+            } else if (attempts >= maxAttempts) {
+                clearInterval(waitForMarketData);
+                console.error("Timeout: Dados insuficientes para análise.");
+                stopBot();
+            } else {
+                console.log(`Aguardando mais dados. Entradas atuais: ${marketData.length}`);
+            }
+        }, 1000);
+    }
+}
+
+
+      function stopBot() {
+       if (isRunning) {
+           console.log("bot stopped");
+           isRunning = false;
+   
+           // Remove o efeito de piscar e classes de progresso
+           clearBlink();
+           step1.classList.remove('highlight');
+           step2.classList.remove('highlight');
+           step3.classList.remove('highlight');
+       }
+   }
+  
+   function updateNotification(message, isPause = false) {
+    const notificationElement = document.getElementById("Notification");
+    if (notificationElement) {
+        // Atualiza o texto da notificação
+        notificationElement.innerHTML = message;
+
+        // Define a cor baseada no tipo de mensagem
+        notificationElement.style.color = isPause ? "red" : "white";
+
+        // Adiciona o efeito de push apenas para mensagens de pausa
+        if (isPause) {
+            notificationElement.classList.add("push-effect");
+        } else {
+            notificationElement.classList.remove("push-effect");
+        }
+
+        // Remove a notificação após um tempo, se não for pausa
+        if (!isPause) {
+            setTimeout(() => {
+                notificationElement.innerHTML = ""; // Limpa a mensagem
+                notificationElement.classList.remove("push-effect");
+            }, 5000); // 5 segundos
+        }
+    } else {
+        console.warn("Elemento de notificações não encontrado.");
+    }
+}
+
+
+
+
+       document.addEventListener("DOMContentLoaded", function() {
+           document.getElementById("start-bot").addEventListener("click", startBot);
+           document.getElementById("start-bot2").addEventListener("click", startBot);
+           document.getElementById("start-bot3").addEventListener("click", startBot);
+           document.getElementById("stop-bot").addEventListener("click", stopBot);
+   
+           const dropdownBtn = document.getElementById("switch-button");
+           const accountDropdown = document.querySelector(".account-dropdown");
+
+           document.getElementById("settings-bot").addEventListener("click", () => {
+               document.getElementById("settingsModal").style.display = "block";
+           });
+           updateBalance();
+       });
+   
+       const settingsModal = document.getElementById("settingsModal");
+       document.getElementById("settings-bot").addEventListener("click", function() {
+           settingsModal.style.display = "flex";
+       });
+   
+       document.getElementById("saveSettings").addEventListener("click", function() {
+           stake = parseFloat(document.getElementById("stake").value);
+           my_stake = stake;
+           initial_stake = stake;
+           stop_loss = parseFloat(document.getElementById("stopLoss").value);
+           take_profit = parseFloat(document.getElementById("takeProfit").value);
+           loss_limit = parseFloat(document.getElementById("lossLimit").value);
+   
+           if (isNaN(stake) || stake < 0.35) {
+               alert("Stake inválido. Insira um valor maior ou igual a 0.35.");
+               return;
+           }
+           if (isNaN(stop_loss) || stop_loss <= 0) {
+               alert("Stop Loss inválido. Insira um valor maior que zero.");
+               return;
+           }
+           if (isNaN(take_profit) || take_profit <= 0) {
+               alert("Take Profit inválido. Insira um valor maior que zero.");
+               return;
+           }
+           if (isNaN(martingale) || martingale <= 0) {
+               alert("Martingale inválido. Insira um valor maior que zero.");
+               return;
+           }
+           if (isNaN(loss_limit) || loss_limit <= 0) {
+               alert("Número de Perdas Seguidas inválido. Insira um valor maior que zero.");
+               return;
+           }
+   
+           settingsModal.style.display = "none";
+       });
+   
+       document.getElementById("start-bot").addEventListener("click", function() {
+           setButtons();
+       });
+       document.getElementById("start-bot2").addEventListener("click", function() {
+           setButtons();
+       });
+       document.getElementById("start-bot3").addEventListener("click", function() {
+           setButtons();
+       });
+   
+       document.getElementById("stop-bot").addEventListener("click", function() {
+            setButtons2();
+       });
+
+       function setButtons(argument) {
+           document.getElementById("start-bot").style.display = "none";
+           document.getElementById("start-bot2").style.display = "none";
+           document.getElementById("start-bot3").style.display = "none";
+           document.getElementById("select_bot").style.display = "none";
+           document.getElementById("select_bot2").style.display = "none"; 
+           document.getElementById("stop-bot").style.display = "block"; 
+           document.getElementById("id_prolo").style.display = "block"; 
+
+           console.log(`Iniciando robô com parâmetros: Stake: ${stake}, Stop Loss: ${stop_loss}, Take Profit: ${take_profit}, Martingale: ${martingale}, Perdas Seguidas: ${loss_limit}`);
+       }
+       function setButtons2(argument) {
+           document.getElementById("start-bot").style.display = "block";
+            document.getElementById("start-bot2").style.display = "block";
+            document.getElementById("start-bot3").style.display = "block";
+            document.getElementById("select_bot").style.display = "block";
+           document.getElementById("select_bot2").style.display = "block"; 
+            document.getElementById("stop-bot").style.display = "none"; 
+            document.getElementById("id_prolo").style.display = "none"; 
+
+            stopBot();
+            ws.send(JSON.stringify({ forget_all: "ticks" }));
+       }
+   
+       updateBalance();
+   })();
+</script>
